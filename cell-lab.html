@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مختبر الخلية المعزز</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#e6f7f4;--bg2:#cfe9f7;--fg:#0f2a2e;--pn:rgba(255,255,255,.85);--ac:#0d9488;--onac:#fff;--bd:rgba(15,42,46,.18);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#06201f;--bg2:#0b1b33;--fg:#e8f7f5;--pn:rgba(8,28,32,.8);--ac:#2dd4bf;--onac:#04201e;--bd:rgba(255,255,255,.2);color-scheme:dark}}
+:root[data-theme="dark"]{--bg1:#06201f;--bg2:#0b1b33;--fg:#e8f7f5;--pn:rgba(8,28,32,.8);--ac:#2dd4bf;--onac:#04201e;--bd:rgba(255,255,255,.2);color-scheme:dark}
+html,body{height:100%;margin:0;overflow:hidden}
+body{font-family:Tajawal,system-ui,sans-serif;color:var(--fg);background:linear-gradient(160deg,var(--bg1),var(--bg2))}
+#v,#c{position:fixed;inset:0;width:100%;height:100%}
+#v{object-fit:cover;display:none}
+#c{touch-action:none}
+.p{background:var(--pn);border:1px solid var(--bd);border-radius:16px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#hd{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:10px;right:10px;text-align:center;padding:8px 12px;pointer-events:none}
+#hd h1{margin:0;font-size:19px}#hd p{margin:2px 0 0;font-size:13px;opacity:.85}
+#tb{position:fixed;top:calc(env(safe-area-inset-top,0px) + 76px);left:0;right:0;display:flex;gap:8px;justify-content:center}
+.b{font:inherit;font-size:14px;color:var(--fg);background:var(--pn);border:1px solid var(--bd);border-radius:999px;padding:9px 14px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.b.on{background:var(--ac);color:var(--onac);border-color:transparent;font-weight:700}
+#ht{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 232px);text-align:center;font-size:12px;opacity:.9;pointer-events:none;transition:opacity 1s;text-shadow:0 0 6px var(--bg1)}
+#cd{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 66px);padding:12px 14px}
+#cd.off{display:none}
+#cd small{color:var(--ac);font-weight:700}#cd h2{margin:2px 0 4px;font-size:18px}#cd p{margin:0;font-size:14px;line-height:1.7}
+#dots{display:flex;gap:5px;margin-top:8px}#dots i{flex:1;height:4px;border-radius:2px;background:var(--bd)}#dots i.a{background:var(--ac)}
+#ct{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+#ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:16px;z-index:9}
+#ov.s{display:flex}
+#bx{max-width:420px;width:100%;padding:18px;text-align:center;max-height:90%;overflow:auto}
+#bx h2{margin:0 0 12px;font-size:18px}#bx img{max-width:100%;max-height:60vh;border-radius:12px}
+#bx .b{display:block;width:100%;margin:8px 0;text-align:center}
+.ok{background:#16a34a!important;color:#fff!important}.no{background:#dc2626!important;color:#fff!important}
+#ts{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:10px 16px;display:none;z-index:10;font-size:14px}
+</style>
+</head>
+<body>
+<video id="v" playsinline muted></video>
+<canvas id="c"></canvas>
+<div id="hd" class="p"><h1>مختبر الخلية المعزز</h1><p>العلوم · ثالث متوسط · أ. شذى ابودوشه</p></div>
+<div id="tb"><button class="b" id="bc">تشغيل الكاميرا</button><button class="b" id="bp">صورة</button><button class="b on" id="bk">البطاقات</button></div>
+<div id="ht">اسحبي لتحريك النموذج · قرّبي بإصبعين للتكبير · نقرتان للإرجاع</div>
+<div id="cd" class="p"><small id="cs"></small><h2 id="ct2"></h2><p id="cx"></p><div id="dots"></div></div>
+<div id="ct"><button class="b" id="bn">→ السابق</button><button class="b on" id="ba">إيقاف</button><button class="b" id="bf">التالي ←</button><button class="b" id="bq">اختبري نفسك</button></div>
+<div id="ov"><div id="bx" class="p"></div></div>
+<div id="ts" class="p"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const S=[
+["المرحلة البينية","تنمو الخلية وتتضاعف المادة الوراثية DNA والعضيات، ويظهر الكروماتين خيوطًا رفيعة داخل النواة وتُرى النوية بوضوح."],
+["الطور التمهيدي","يتكثف الكروماتين إلى كروموسومات، كل كروموسوم من كروماتيدين متماثلين، وتختفي النوية وغشاء النواة وتتكوّن خيوط المغزل."],
+["الطور الاستوائي","تصطف الكروموسومات على خط استواء الخلية وتتصل بخيوط المغزل من القطبين."],
+["الطور الانفصالي","ينفصل الكروماتيدان ويتحرك كل منهما نحو قطب، فيصبح كل كروماتيد كروموسومًا مستقلًا."],
+["الطور النهائي","تصل الكروموسومات إلى القطبين ويتكوّن غشاء نواة جديد، ثم ينقسم السيتوبلازم فتنتج خليتان متماثلتان."]];
+const Q=[
+["في أي مرحلة تتضاعف المادة الوراثية؟",["المرحلة البينية","الطور الاستوائي","الطور النهائي"],0],
+["تصطف الكروموسومات على خط الاستواء في:",["الطور التمهيدي","الطور الاستوائي","الطور الانفصالي"],1],
+["ينفصل الكروماتيدان في:",["الطور الانفصالي","الطور التمهيدي","المرحلة البينية"],0],
+["يتكوّن غشاء نواة جديد في:",["الطور الاستوائي","الطور الانفصالي","الطور النهائي"],2],
+["عدد الخلايا الناتجة عن الانقسام المتساوي:",["أربع خلايا","خليتان","خلية واحدة"],1]];
+let st=0,auto=true,timer=null;
+function toast(t){const e=$('ts');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2800)}
+function go(n){st=(n+S.length)%S.length;$('cs').textContent='المرحلة '+(st+1)+' من '+S.length;$('ct2').textContent=S[st][0];$('cx').textContent=S[st][1];
+$('dots').innerHTML=S.map((_,i)=>'<i class="'+(i<=st?'a':'')+'"></i>').join('')}
+function setAuto(a){auto=a;clearInterval(timer);if(a)timer=setInterval(()=>go(st+1),5000);$('ba').textContent=a?'إيقاف':'تشغيل';$('ba').classList.toggle('on',a)}
+$('bn').onclick=()=>{go(st-1)};$('bf').onclick=()=>{go(st+1)};$('ba').onclick=()=>setAuto(!auto);
+$('bk').onclick=()=>{$('cd').classList.toggle('off');$('bk').classList.toggle('on')};
+go(0);setAuto(true);setTimeout(()=>$('ht').style.opacity=0,7000);
+
+/* 3D */
+let R,sc,cam,root,cell,Z0=9;
+const cv=$('c');
+try{R=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true,preserveDrawingBuffer:true});}catch(e){toast('المتصفح لا يدعم العرض ثلاثي الأبعاد')}
+if(R){
+sc=new THREE.Scene();cam=new THREE.PerspectiveCamera(45,1,.1,100);
+sc.add(new THREE.AmbientLight(0xffffff,.75));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(3,5,6);sc.add(dl);
+root=new THREE.Group();sc.add(root);cell=new THREE.Group();root.add(cell);root.rotation.x=.15;
+const ph=(c,o,s)=>new THREE.MeshPhongMaterial({color:c,transparent:o<1,opacity:o,shininess:s||40,depthWrite:o>=1,side:THREE.DoubleSide});
+const mem=new THREE.Mesh(new THREE.SphereGeometry(2.5,40,28),ph(0x5eead4,.2));cell.add(mem);
+const n1=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),ph(0xa78bfa,.35)),n2=n1.clone();n2.material=ph(0xa78bfa,.35);cell.add(n1,n2);
+const nl=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),ph(0x5b21b6,1));nl.position.set(.3,.2,0);cell.add(nl);
+const fr=new THREE.Mesh(new THREE.TorusGeometry(2.4,.1,10,48),ph(0x2dd4bf,.9));fr.rotation.y=Math.PI/2;cell.add(fr);
+const cg=new THREE.CylinderGeometry(.07,.07,.35,8),cm=ph(0xfde047,1),cents=[-1,1].map(()=>{const g=new THREE.Group(),a=new THREE.Mesh(cg,cm),b=new THREE.Mesh(cg,cm);b.rotation.x=Math.PI/2;b.position.z=.1;g.add(a,b);cell.add(g);return g});
+const COL=[0xf97316,0xec4899,0xfacc15,0x38bdf8],SC=[[.4,.3,.2],[-.45,.2,-.3],[.1,-.5,.35],[-.2,-.35,-.4]];
+function T(s,i,j){const q=j?1:-1,a=i*Math.PI/2+.4,cy=Math.cos(a),sn=Math.sin(a),k=SC[i],r=[i*.9,i*.5,i*1.3];
+if(s==0)return[k[0]*.8+q*.02,k[1]*.8,k[2]*.8,...r,.3,.9];
+if(s==1)return[k[0]*1.05+q*.07,k[1]*1.05,k[2]*1.05,...r,1,.7];
+if(s==2)return[q*.07,cy*1.15,sn*1.15,0,0,0,1,.7];
+if(s==3)return[q*1.2,cy,sn,0,0,q*.5,1,.6];
+return[q*1.75,cy*.55,sn*.55,0,0,0,.7,.5]}
+const gg=new THREE.CylinderGeometry(.09,.09,1,10),lm=new THREE.LineBasicMaterial({color:0xe2e8f0,transparent:true,opacity:0}),ch=[];
+for(let i=0;i<4;i++)for(let j=0;j<2;j++){const m=new THREE.Mesh(gg,new THREE.MeshPhongMaterial({color:COL[i],shininess:60}));m.userData={i,j,c:T(0,i,j).slice()};
+const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(6),3));const ln=new THREE.Line(lg,lm);ln.frustumCulled=false;m.userData.l=ln;cell.add(m,ln);ch.push(m)}
+const D={pole:2,mem:1,n1x:0,n1s:0,n1o:0,n2x:0,n2s:0,n2o:0,nl:0,fr:0,sp:0};
+const TG=[{...D,pole:.9,n1s:1.15,n1o:.35,nl:.28},{...D,pole:1.6,n1s:1.1,n1o:.1,sp:.25},{...D,sp:.7},{...D,mem:1.05,sp:.7},{...D,mem:1.35,n1x:-1.75,n1s:.6,n1o:.35,n2x:1.75,n2s:.6,n2o:.35,fr:1}];
+const V={...TG[0]};
+function size(){const w=innerWidth,h=innerHeight;R.setPixelRatio(Math.min(devicePixelRatio||1,2));R.setSize(w,h,false);cam.aspect=w/h;Z0=Math.max(9,7.6/cam.aspect);cam.position.z=Z0;cam.updateProjectionMatrix()}
+addEventListener('resize',size);size();
+function reset(){root.rotation.set(.15,0,0);cam.position.z=Z0}
+function tick(t){requestAnimationFrame(tick);const g=TG[st];for(const k in V)V[k]+=(g[k]-V[k])*.06;
+ch.forEach(m=>{const u=m.userData,tg=T(st,u.i,u.j),c=u.c;for(let n=0;n<8;n++)c[n]+=(tg[n]-c[n])*.06;
+m.position.set(c[0],c[1],c[2]);m.rotation.set(c[3],c[4],c[5]);m.scale.set(c[6],c[7],c[6]);
+const p=u.l.geometry.attributes.position.array;p[0]=(u.j?1:-1)*V.pole;p[1]=0;p[2]=0;p[3]=c[0];p[4]=c[1];p[5]=c[2];u.l.geometry.attributes.position.needsUpdate=true});
+lm.opacity=V.sp;cents[0].position.x=-V.pole;cents[1].position.x=V.pole;mem.scale.x=V.mem;
+n1.position.x=V.n1x;n1.scale.setScalar(Math.max(V.n1s,.001));n1.material.opacity=V.n1o;n1.visible=V.n1o>.01;
+n2.position.x=V.n2x;n2.scale.setScalar(Math.max(V.n2s,.001));n2.material.opacity=V.n2o;n2.visible=V.n2o>.01;
+nl.scale.setScalar(Math.max(V.nl,.001));nl.visible=V.nl>.02;fr.scale.setScalar(Math.max(V.fr,.001));fr.visible=V.fr>.02;
+root.position.y=Math.sin(t/900)*.08;R.render(sc,cam)}
+requestAnimationFrame(tick);
+/* gestures */
+const P=new Map();let pd=0,last=0,mv=0;const dist=()=>{const a=[...P.values()];return Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])||1};
+const zc=z=>Math.min(Z0*1.7,Math.max(Z0*.45,z));
+cv.addEventListener('pointerdown',e=>{try{cv.setPointerCapture(e.pointerId)}catch(_){}P.set(e.pointerId,[e.clientX,e.clientY]);mv=0;if(P.size==2)pd=dist()});
+cv.addEventListener('pointermove',e=>{const o=P.get(e.pointerId);if(!o)return;
+if(P.size==1){const dx=e.clientX-o[0],dy=e.clientY-o[1];root.rotation.y+=dx*.008;root.rotation.x=Math.max(-1.3,Math.min(1.3,root.rotation.x+dy*.008));mv+=Math.abs(dx)+Math.abs(dy)}
+P.set(e.pointerId,[e.clientX,e.clientY]);
+if(P.size==2){const d=dist();cam.position.z=zc(cam.position.z*pd/d);pd=d;mv=99}});
+const up=e=>{P.delete(e.pointerId);if(mv<6&&P.size==0){const n=Date.now();if(n-last<320)reset();last=n}};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{e.preventDefault();cam.position.z=zc(cam.position.z+e.deltaY*.01)},{passive:false});
+}
+/* camera + photo */
+let stream=null;const vd=$('v');
+$('bc').onclick=async()=>{
+if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;vd.style.display='none';$('bc').textContent='تشغيل الكاميرا';$('bc').classList.remove('on');return}
+try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});vd.srcObject=stream;await vd.play();vd.style.display='block';$('bc').textContent='إيقاف الكاميرا';$('bc').classList.add('on')}
+catch(e){stream=null;toast('تعذّر تشغيل الكاميرا، تأكدي من السماح بالوصول إليها')}};
+function modal(h){$('bx').innerHTML=h;$('ov').classList.add('s')}
+$('bp').onclick=()=>{if(!R)return;const W=cv.width,H=cv.height,o=document.createElement('canvas');o.width=W;o.height=H;const x=o.getContext('2d');
+x.fillStyle='#0b2a2e';x.fillRect(0,0,W,H);
+if(stream&&vd.videoWidth){const s=Math.max(W/vd.videoWidth,H/vd.videoHeight);x.drawImage(vd,(W-vd.videoWidth*s)/2,(H-vd.videoHeight*s)/2,vd.videoWidth*s,vd.videoHeight*s)}
+x.drawImage(cv,0,0);x.fillStyle='#fff';x.font='bold '+Math.round(W/22)+'px sans-serif';x.textAlign='center';x.fillText('مختبر الخلية المعزز · أ. شذى ابودوشه',W/2,H-W/20);
+modal('<h2>تم التقاط الصورة</h2><img src="'+o.toDataURL('image/png')+'" alt="صورة"><p style="font-size:13px">اضغطي مطولًا على الصورة لحفظها</p><button class="b" data-x="1">إغلاق</button>')};
+/* quiz */
+let qi=0,sco=0;
+function showQ(){if(qi>=Q.length){modal('<h2>نتيجتك '+sco+' من '+Q.length+'</h2><p>'+(sco>=4?'ممتاز! أنتِ متمكنة من مراحل الانقسام 🌟':'راجعي البطاقات وحاولي مرة أخرى')+'</p><button class="b on" data-r="1">إعادة الاختبار</button><button class="b" data-x="1">إغلاق</button>');return}
+const q=Q[qi];modal('<h2>سؤال '+(qi+1)+' من '+Q.length+'<br>'+q[0]+'</h2>'+q[1].map((t,i)=>'<button class="b" data-a="'+i+'">'+t+'</button>').join(''))}
+$('bq').onclick=()=>{qi=0;sco=0;showQ()};
+$('ov').addEventListener('click',e=>{const d=e.target.dataset||{};
+if(d.x||e.target.id=='ov'){$('ov').classList.remove('s');return}
+if(d.r){qi=0;sco=0;showQ();return}
+if(d.a!==undefined){const a=+d.a,r=Q[qi][2];if(a==r)sco++;e.target.classList.add(a==r?'ok':'no');
+if(a!=r)[...$('bx').querySelectorAll('[data-a]')][r].classList.add('ok');
+$('bx').querySelectorAll('[data-a]').forEach(b=>b.disabled=true);setTimeout(()=>{qi++;showQ()},1100)}});
+</script>
+</body>
+</html>
